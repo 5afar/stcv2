@@ -1,7 +1,0 @@
-O:/Projects/c_plus_plus/STCv2/stcv2/build/Desktop_Qt_6_11_2_shared_MinGW_w64_MINGW64_MSYS2_Debug/CMakeFiles/stcv2.dir
-O:/Projects/c_plus_plus/STCv2/stcv2/build/Desktop_Qt_6_11_2_shared_MinGW_w64_MINGW64_MSYS2_Debug/CMakeFiles/edit_cache.dir
-O:/Projects/c_plus_plus/STCv2/stcv2/build/Desktop_Qt_6_11_2_shared_MinGW_w64_MINGW64_MSYS2_Debug/CMakeFiles/rebuild_cache.dir
-O:/Projects/c_plus_plus/STCv2/stcv2/build/Desktop_Qt_6_11_2_shared_MinGW_w64_MINGW64_MSYS2_Debug/CMakeFiles/list_install_components.dir
-O:/Projects/c_plus_plus/STCv2/stcv2/build/Desktop_Qt_6_11_2_shared_MinGW_w64_MINGW64_MSYS2_Debug/CMakeFiles/install.dir
-O:/Projects/c_plus_plus/STCv2/stcv2/build/Desktop_Qt_6_11_2_shared_MinGW_w64_MINGW64_MSYS2_Debug/CMakeFiles/install/local.dir
-O:/Projects/c_plus_plus/STCv2/stcv2/build/Desktop_Qt_6_11_2_shared_MinGW_w64_MINGW64_MSYS2_Debug/CMakeFiles/install/strip.dir
