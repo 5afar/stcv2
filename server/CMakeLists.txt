@@ -1,5 +1,7 @@
 add_executable(users_server
     main.cpp
+    database.h
+    database.cpp
 )
 
 target_include_directories(users_server PRIVATE ${CMAKE_SOURCE_DIR})
