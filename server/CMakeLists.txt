@@ -2,6 +2,9 @@ add_executable(users_server
     main.cpp
     database.h
     database.cpp
+    server.h server.cpp
+    clientconnection.h clientconnection.cpp
+    requesttask.h requesttask.cpp
 )
 
 target_include_directories(users_server PRIVATE ${CMAKE_SOURCE_DIR})
