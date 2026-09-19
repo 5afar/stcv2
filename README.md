@@ -1,21 +1,38 @@
 # User Client-Server
 
 Клиент-серверное приложение на C++/Qt: многопоточный TCP-сервер с SQLite
-и GUI-клиент на Qt Widgets.
+и GUI-клиент на Qt Widgets
 
 > Учебный проект для демонстрации навыков: CMake, Qt Network, Qt SQL,
-> Qt Widgets, многопоточность, клиент-серверный протокол.
+> Qt Widgets, многопоточность, клиент-серверный протокол
 
 ---
 
 ## Возможности
 
-- Многопоточный TCP-сервер: каждое соединение обслуживается в отдельном
-  `QThread`, каждый запрос — в отдельном воркере `QThreadPool`.
-- Хранение пользователей в SQLite (`users(id, username, email)`).
-- Простой протокол поверх TCP:
-  `[4 байта длины big-endian][UTF-8 JSON]`.
+### Сервер
+- Многопоточный TCP-сервер: соединение на `QThread`, запрос на `QThreadPool`
+- SQLite-хранилище (`users(id, username, email)`)
+- `UNIQUE INDEX` на username и email
+- Валидация входных данных: длина, формат email, control chars, пробелы
+- Защита от SQL-инъекций через `QSqlQuery::prepare` + `addBindValue`
+- Ограничение максимального размера сообщения (1 МиБ)
 
+### Клиент
+- Qt Widgets GUI на базе `.ui`-файла из Qt Designer
+- Асинхронный `QTcpSocket` в главном потоке
+- Форма добавления пользователя: username, email, валидация до отправки
+- Таблица пользователей с контекстным меню и кнопками
+- **Редактирование** через модальный диалог
+- **Удаление** с подтверждением
+- Автоматическая загрузка списка при подключении и обновление после изменений
+- Кнопки активируются/деактивируются в зависимости от выделения и состояния соединения
+
+### Протокол
+ `[4 байта длины big-endian][UTF-8 JSON]`.
+- Четыре действия: `add_user`, `get_users`, `update_user`, `delete_user`.
+- Общая библиотека `protocol` — единая логика кодирования/декодирования
+  для клиента и сервера.
 ---
 
 ## Требования
@@ -26,7 +43,7 @@
   - Модули: Core, Network, Sql, Widgets
   - Драйвер `QSQLITE` (идёт в поставке `qt6-base`)
 
-Сборка через MSYS2:
+### Установка окружения (MSYS2)
 
 ```bash
 pacman -S mingw-w64-x86_64-gcc \
@@ -35,7 +52,7 @@ pacman -S mingw-w64-x86_64-gcc \
           mingw-w64-x86_64-qt6-tools
 ```
 
-Сборка на Ubuntu:
+### Ubuntu
 
 ```bash
 sudo apt install build-essential cmake qt6-base-dev qt6-tools-dev
@@ -53,31 +70,37 @@ cmake --build build -j
 Появятся два исполняемых файла:
 
 - `build/server/users_server`
-- `build/client/users_client` (в разработке)
+- `build/client/users_client`
 
 ---
 
-## Запуск сервера
+## Запуск
+
+### Сервер
 
 ```bash
 ./build/server/users_server --port 5555 --db users.db
 ```
 
-Аргументы:
-
 | Опция | По умолчанию | Описание |
 |---|---|---|
 | `-p`, `--port` | `5555` | Порт для прослушивания |
-| `-d`, `--db` | `users.db` | Путь к файлу SQLite |
+| `-d`, `--db`   | `users.db` | Путь к файлу SQLite |
 
-Также доступны:
+Также доступны `--help` и `--version`.
+
+Остановить — `Ctrl+C` или закрыть окно.
+
+### Клиент
 
 ```bash
-./build/server/users_server --help
-./build/server/users_server --version
+./build/client/users_client
 ```
 
-Остановить сервер — `Ctrl+C` или закрыть окно.
+Клиент автоматически подключается к `127.0.0.1:5555`.
+
+Адрес и порт заданы константами `kHost` / `kPort` в `client/mainwindow.cpp`.
+
 
 ---
 
@@ -100,33 +123,28 @@ cmake --build build -j
 ### `add_user` — добавить пользователя
 
 Запрос:
-
 ```json
 { "action": "add_user", "username": "Sidorov", "email": "sidorov@example.com" }
 ```
 
-Успешный ответ:
-
+Успех:
 ```json
 { "status": "success", "message": "User added successfully", "id": 1 }
 ```
 
-Ошибка:
-
+Ошибка (валидация, дубликат, БД):
 ```json
-{ "status": "error", "message": "username and email must be non-empty" }
+{ "status": "error", "message": "Email format is invalid (expected name@domain.tld)" }
 ```
 
-### `get_users` — получить всех пользователей
+### `get_users` — список всех пользователей
 
 Запрос:
-
 ```json
 { "action": "get_users" }
 ```
 
-Успешный ответ:
-
+Ответ:
 ```json
 {
   "status": "success",
@@ -137,28 +155,56 @@ cmake --build build -j
 }
 ```
 
+### `update_user` — изменить пользователя
+
+Запрос:
+```json
+{ "action": "update_user", "id": 1, "username": "Sidorov", "email": "sidorov.new@example.com" }
+```
+
+Успех:
+```json
+{ "status": "success", "message": "User updated successfully" }
+```
+
+### `delete_user` — удалить пользователя
+
+Запрос:
+```json
+{ "action": "delete_user", "id": 1 }
+```
+
+Успех:
+```json
+{ "status": "success", "message": "User deleted successfully" }
+```
+
+
 ___
 
 ## Структура проекта
 
 ```
-user-client-server/
+stcv2/
 ├── CMakeLists.txt
 ├── README.md
 ├── .gitignore
+├── .clang-format
 ├── common/
-│   ├── protocol.h      # общий формат кадров
-│   └── protocol.cpp
+│   ├── protocol.h / .cpp       # общий формат кадров
+│   └── validation.h / .cpp     # общие правила валидации
 ├── server/
 │   ├── CMakeLists.txt
-│   ├── main.cpp
-│   ├── server.h/cpp        # QTcpServer наследник
-│   ├── clientconnection.h/cpp  # per-client обработчик
-│   ├── requesttask.h/cpp       # per-request задача для пула
-│   └── database.h/cpp          # SQLite обёртка
+│   ├── main.cpp                # CLI-аргументы, запуск сервера
+│   ├── server.h / .cpp         # QTcpServer наследник
+│   ├── clientconnection.h / .cpp   # per-client обработчик
+│   ├── requesttask.h / .cpp        # per-request задача (dispatcher)
+│   └── database.h / .cpp           # SQLite-обёртка
 └── client/
     ├── CMakeLists.txt
-    └── main.cpp                # GUI (в разработке)
+    ├── main.cpp
+    ├── mainwindow.h / .cpp / .ui   # главное окно
+    └── edituserdialog.h / .cpp     # диалог редактирования
 ```
 
 ---
