@@ -24,6 +24,11 @@ class RequestTask : public QRunnable {  /// QRunnable класс для зача
     void run() override;
 
    private:
+    QJsonObject handleAddUser();
+    QJsonObject handleUpdateUser();
+    QJsonObject handleDeleteUser();
+    QJsonObject handleGetUsers();
+
     QJsonObject m_req;  // создаем копию изначального запроса, тк оригинал после выхода из области
                         // перестанет существовать
     QPointer<ClientConnection> m_conn;

@@ -79,10 +79,10 @@ bool Database::init(const QString& path, QString* err) {
     return true;
 }
 QString Database::checkUnique(const QString& username, const QString& email) {
-    return checkUniqueExcept(-1, username, email);
+    return checkUniqueExceptId(-1, username, email);
 }
 
-QString Database::checkUniqueExcept(int exceptId, const QString& username, const QString& email) {
+QString Database::checkUniqueExceptId(int exceptId, const QString& username, const QString& email) {
     QSqlDatabase db = connectionForCurrentThread();
     QSqlQuery q(db);
 
@@ -166,7 +166,7 @@ bool Database::updateUser(int id, const QString& username, const QString& email,
         }
     }
 
-    const QString uniqueError = checkUniqueExcept(id, username, email);
+    const QString uniqueError = checkUniqueExceptId(id, username, email);
     if (!uniqueError.isEmpty()) {
         if (err)
             *err = uniqueError;
