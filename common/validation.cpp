@@ -17,11 +17,11 @@ bool hasControlChars(const QString& s) {
 // Требует: <что-то>@<что-то>.<что-то-из-2+символов>
 // Не допускает пробелов, запятых, точек подряд, точек в начале/конце.
 const QRegularExpression& emailRegex() {
-    static const QRegularExpression re(QStringLiteral(
-        R"(^[A-Za-z0-9](?:[A-Za-z0-9._%+\-]*[A-Za-z0-9])?"  
-            R"(@)"
-        R"([A-Za-z0-9](?:[A-Za-z0-9\-]*[A-Za-z0-9])?)"
-        R"((?:\.[A-Za-z0-9](?:[A-Za-z0-9\-]*[A-Za-z0-9])?)+$)"));
+    static const QRegularExpression re(
+        QStringLiteral(R"(^[A-Za-z0-9](?:[A-Za-z0-9._%+\-]*[A-Za-z0-9])?)"
+                       R"(@)"
+                       R"([A-Za-z0-9](?:[A-Za-z0-9\-]*[A-Za-z0-9])?)"
+                       R"((?:\.[A-Za-z0-9](?:[A-Za-z0-9\-]*[A-Za-z0-9])?)+$)"));
     return re;
 }
 }  // namespace
