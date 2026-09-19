@@ -10,7 +10,6 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Network Widgets Sql)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Network Widgets Sql)
 message(STATUS "Using Qt ${QT_VERSION_MAJOR}")
@@ -19,7 +18,6 @@ message(STATUS "Using Qt ${QT_VERSION_MAJOR}")
 add_library(protocol STATIC
     common/protocol.cpp
     common/protocol.h
-    .clang-format
 )
 
 target_include_directories(protocol PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

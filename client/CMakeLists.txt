@@ -1,9 +1,10 @@
 add_executable(users_client
     main.cpp
+    mainwindow.ui
+    mainwindow.h mainwindow.cpp
 )
 
 target_include_directories(users_client PRIVATE ${CMAKE_SOURCE_DIR})
-
 target_link_libraries(users_client PRIVATE
     protocol
     Qt${QT_VERSION_MAJOR}::Core
