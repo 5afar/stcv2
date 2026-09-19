@@ -30,6 +30,11 @@ class MainWindow : public QMainWindow {
     void onRefreshClicked();
     void onReconnectClicked();
 
+    void onEditClicked();
+    void onDeleteClicked();
+    void onTableContextMenuRequested(const QPoint& pos);
+    void onTableSelectionChanged();
+
    private:
     void connectToServer();                 // Подключение к серверу из конструктора либо от кнопки
     void sendJson(const QJsonObject& obj);  // отправка
@@ -37,6 +42,12 @@ class MainWindow : public QMainWindow {
     void handleResponse(const QJsonObject& resp);    // Обработка ответов от сервера
     void updateUsersTable(const QJsonArray& users);  // обновление таблицы в ui
     void setStatus(const QString& text);             // обновляем лейбл статуса
+    void requestUpdateUser(int id, const QString& username,
+                           const QString& email);  // Обновление пользователя
+    void requestDeleteUser(int id);                // Удаление пользователя
+
+    // Возвращает id выделенной строки или -1, если ничего не выделено.
+    int selectedUserId() const;
 
     Ui::MainWindow* m_ui = nullptr;
     QTcpSocket* m_socket = nullptr;
