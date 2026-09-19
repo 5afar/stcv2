@@ -62,9 +62,41 @@ bool Database::init(const QString& path, QString* err) {
             *err = q.lastError().text();
         return false;
     }
+    const QString idxUsername =
+        QStringLiteral("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username)");
+    const QString idxEmail =
+        QStringLiteral("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email)");
+    if (!q.exec(idxUsername)) {
+        if (err)
+            *err = q.lastError().text();
+        return false;
+    }
+    if (!q.exec(idxEmail)) {
+        if (err)
+            *err = q.lastError().text();
+        return false;
+    }
     return true;
 }
-
+QString Database::checkUnique(const QString& username, const QString& email) {
+    QSqlDatabase db = connectionForCurrentThread();
+    QSqlQuery q(db);
+    q.prepare(
+        QStringLiteral("SELECT username, email FROM users "
+                       "WHERE username = ? OR email = ? LIMIT 1"));
+    q.addBindValue(username);
+    q.addBindValue(email);
+    if (!q.exec()) {
+        return q.lastError().text();
+    }
+    if (!q.next()) {
+        return {};  // ничего не нашли — уникальность соблюдена
+    }
+    // Нашли запись. Определяем, что именно совпало.
+    if (q.value(0).toString() == username)
+        return QStringLiteral("Username '%1' is already taken").arg(username);
+    return QStringLiteral("Email '%1' is already registered").arg(email);
+}
 bool Database::addUser(const QString& username, const QString& email, int* outId, QString* err) {
     QSqlDatabase db = connectionForCurrentThread();
     QSqlQuery q(db);
