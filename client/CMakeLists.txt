@@ -2,6 +2,8 @@ add_executable(users_client
     main.cpp
     mainwindow.ui
     mainwindow.h mainwindow.cpp
+    edituserdialog.h
+    edituserdialog.cpp
 )
 
 target_include_directories(users_client PRIVATE ${CMAKE_SOURCE_DIR})
