@@ -18,6 +18,8 @@ message(STATUS "Using Qt ${QT_VERSION_MAJOR}")
 add_library(protocol STATIC
     common/protocol.cpp
     common/protocol.h
+    common/validation.h
+    common/validation.cpp
 )
 
 target_include_directories(protocol PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
