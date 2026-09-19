@@ -3,6 +3,7 @@
 #include <QJsonArray>
 #include <QMetaObject>
 
+#include "common/validation.h"
 #include "server/clientconnection.h"
 #include "server/database.h"
 
@@ -39,8 +40,11 @@ void RequestTask::run() {
         const QString username = m_req.value(QStringLiteral("username")).toString().trimmed();
         const QString email = m_req.value(QStringLiteral("email")).toString().trimmed();
 
-        if (username.isEmpty() || email.isEmpty()) {
-            reply = errorReply(QStringLiteral("username and email must be non-empty"));
+        QString validationError = validation::validateUsername(username);
+        if (validationError.isEmpty())
+            validationError = validation::validateEmail(email);
+        if (!validationError.isEmpty()) {
+            reply = errorReply(validationError);
         } else {
             int newId = -1;
             QString err;
@@ -48,7 +52,10 @@ void RequestTask::run() {
                 reply = successReply(QStringLiteral("User added successfully"));
                 reply[QStringLiteral("id")] = newId;
             } else {
-                reply = errorReply(err);
+                if (err.contains(QStringLiteral("UNIQUE"), Qt::CaseInsensitive))
+                    reply = errorReply(QStringLiteral("Username or email already exists"));
+                else
+                    reply = errorReply(err);
             }
         }
     } else if (action == QStringLiteral("get_users")) {

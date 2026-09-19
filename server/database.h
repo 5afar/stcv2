@@ -19,6 +19,10 @@ class Database {
    public:
     static Database& instance();
     bool init(const QString& path, QString* err = nullptr);
+    // Проверяет, что username и email ещё не заняты.
+    // Возвращает пустую строку, если всё хорошо,
+    // иначе — текст ошибки с указанием, что дублируется.
+    QString checkUnique(const QString& username, const QString& email);
 
     bool addUser(const QString& username, const QString& email, int* outId = nullptr,
                  QString* err = nullptr);

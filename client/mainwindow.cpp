@@ -8,6 +8,7 @@
 #include <QTcpSocket>
 
 #include "common/protocol.h"
+#include "common/validation.h"
 #include "ui_mainwindow.h"
 
 namespace {
@@ -28,6 +29,12 @@ MainWindow::MainWindow(QWidget* parent)
     m_ui->usersTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     m_ui->usersTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     m_ui->usersTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+
+    // Ограничение длины ввода
+    m_ui->usernameEdit->setMaxLength(validation::kUsernameMaxLen);
+    m_ui->emailEdit->setMaxLength(validation::kEmailMaxLen);
+    m_ui->usernameEdit->setPlaceholderText(QStringLiteral("safar"));
+    m_ui->emailEdit->setPlaceholderText(QStringLiteral("example@exam.com"));
 
     // Связь сигналов сокета со слотами окна
     connect(m_socket, &QTcpSocket::connected, this, &MainWindow::onConnected);
@@ -88,9 +95,12 @@ void MainWindow::onAddClicked() {
 
     const QString username = m_ui->usernameEdit->text().trimmed();
     const QString email = m_ui->emailEdit->text().trimmed();
-    if (username.isEmpty() || email.isEmpty()) {  // если поля пустые
-        QMessageBox::information(this, QStringLiteral("Input"),
-                                 QStringLiteral("Please fill in both fields"));
+
+    QString validationError = validation::validateUsername(username);
+    if (validationError.isEmpty())
+        validationError = validation::validateEmail(email);
+    if (!validationError.isEmpty()) {
+        QMessageBox::warning(this, QStringLiteral("Invalid input"), validationError);
         return;
     }
 
