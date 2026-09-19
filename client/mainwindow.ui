@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>645</width>
-    <height>522</height>
+    <width>648</width>
+    <height>541</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -84,6 +84,39 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="editButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Edit selected</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="deleteButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Delete selected</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
          <widget class="QPushButton" name="refreshButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -118,7 +151,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Disconnected</string>
+           <string>Right-click a row to edit or delete</string>
           </property>
          </widget>
         </item>
@@ -167,7 +200,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>645</width>
+     <width>648</width>
      <height>22</height>
     </rect>
    </property>
