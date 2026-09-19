@@ -1,10 +1,13 @@
 #include <QApplication>
-#include <QLabel>
+
+#include "client/mainwindow.h"
 
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
-    QLabel label("users_client");
-    label.resize(400, 80);
-    label.show();
+    QApplication::setApplicationName(QStringLiteral("users-client"));
+    QApplication::setApplicationVersion(QStringLiteral("1.0"));
+
+    MainWindow w;
+    w.show();
     return app.exec();
 }
