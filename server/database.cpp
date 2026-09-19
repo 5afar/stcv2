@@ -79,20 +79,33 @@ bool Database::init(const QString& path, QString* err) {
     return true;
 }
 QString Database::checkUnique(const QString& username, const QString& email) {
+    return checkUniqueExceptId(-1, username, email);
+}
+
+QString Database::checkUniqueExceptId(int exceptId, const QString& username, const QString& email) {
     QSqlDatabase db = connectionForCurrentThread();
     QSqlQuery q(db);
-    q.prepare(
-        QStringLiteral("SELECT username, email FROM users "
-                       "WHERE username = ? OR email = ? LIMIT 1"));
+
+    // Если exceptId >= 0 — ищем совпадения СРЕДИ ДРУГИХ пользователей.
+    // Если exceptId == -1 — ищем среди всех.
+    QString sql = QStringLiteral(
+        "SELECT username, email FROM users "
+        "WHERE (username = ? OR email = ?)");
+    if (exceptId >= 0)
+        sql += QStringLiteral(" AND id <> ?");
+    sql += QStringLiteral(" LIMIT 1");
+
+    q.prepare(sql);
     q.addBindValue(username);
     q.addBindValue(email);
-    if (!q.exec()) {
+    if (exceptId >= 0)
+        q.addBindValue(exceptId);
+
+    if (!q.exec())
         return q.lastError().text();
-    }
-    if (!q.next()) {
-        return {};  // ничего не нашли — уникальность соблюдена
-    }
-    // Нашли запись. Определяем, что именно совпало.
+    if (!q.next())
+        return {};
+
     if (q.value(0).toString() == username)
         return QStringLiteral("Username '%1' is already taken").arg(username);
     return QStringLiteral("Email '%1' is already registered").arg(email);
@@ -132,4 +145,61 @@ QVector<User> Database::getUsers(QString* err) {
         result.push_back(u);
     }
     return result;
+}
+bool Database::updateUser(int id, const QString& username, const QString& email, QString* err) {
+    // Сначала проверим, что id существует и что новые значения
+    // не заняты другими пользователями.
+    {
+        QSqlDatabase db = connectionForCurrentThread();
+        QSqlQuery q(db);
+        q.prepare(QStringLiteral("SELECT 1 FROM users WHERE id = ?"));
+        q.addBindValue(id);
+        if (!q.exec()) {
+            if (err)
+                *err = q.lastError().text();
+            return false;
+        }
+        if (!q.next()) {
+            if (err)
+                *err = QStringLiteral("User with id %1 not found").arg(id);
+            return false;
+        }
+    }
+
+    const QString uniqueError = checkUniqueExceptId(id, username, email);
+    if (!uniqueError.isEmpty()) {
+        if (err)
+            *err = uniqueError;
+        return false;
+    }
+
+    QSqlDatabase db = connectionForCurrentThread();
+    QSqlQuery q(db);
+    q.prepare(QStringLiteral("UPDATE users SET username = ?, email = ? WHERE id = ?"));
+    q.addBindValue(username);
+    q.addBindValue(email);
+    q.addBindValue(id);
+    if (!q.exec()) {
+        if (err)
+            *err = q.lastError().text();
+        return false;
+    }
+    return true;
+}
+bool Database::deleteUser(int id, QString* err) {
+    QSqlDatabase db = connectionForCurrentThread();
+    QSqlQuery q(db);
+    q.prepare(QStringLiteral("DELETE FROM users WHERE id = ?"));
+    q.addBindValue(id);
+    if (!q.exec()) {
+        if (err)
+            *err = q.lastError().text();
+        return false;
+    }
+    if (q.numRowsAffected() == 0) {
+        if (err)
+            *err = QStringLiteral("User with id %1 not found").arg(id);
+        return false;
+    }
+    return true;
 }

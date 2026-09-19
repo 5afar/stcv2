@@ -28,6 +28,9 @@ class Database {
                  QString* err = nullptr);
 
     QVector<User> getUsers(QString* err = nullptr);
+    bool updateUser(int id, const QString& username, const QString& email, QString* err = nullptr);
+    bool deleteUser(int id, QString* err = nullptr);
+    QString checkUniqueExceptId(int exceptId, const QString& username, const QString& email);
 
    private:
     Database() = default;
