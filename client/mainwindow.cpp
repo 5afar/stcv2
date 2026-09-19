@@ -62,6 +62,7 @@ MainWindow::MainWindow(QWidget* parent)
             &MainWindow::onTableSelectionChanged);
     onTableSelectionChanged();  // стартовое состояние — выключены
 
+    onDisconnected();
     connectToServer();
 }
 
@@ -80,11 +81,25 @@ void MainWindow::connectToServer() {
 
 void MainWindow::onConnected() {
     setStatus(QStringLiteral("Connected to %1:%2").arg(QString::fromLatin1(kHost)).arg(kPort));
+
+    m_ui->addButton->setEnabled(true);
+    m_ui->refreshButton->setEnabled(true);
+    m_ui->reconnectButton->setEnabled(true);
+    m_ui->usernameEdit->setEnabled(true);
+    m_ui->emailEdit->setEnabled(true);
+    onTableSelectionChanged();  // вернёт Edit/Delete в правильное состояние
+
     refreshUsers();  // после подключения, сразу запрашиваем пользователей
 }
 
 void MainWindow::onDisconnected() {
     setStatus(QStringLiteral("Disconnected"));
+    m_ui->addButton->setEnabled(false);
+    m_ui->refreshButton->setEnabled(false);
+    m_ui->editButton->setEnabled(false);
+    m_ui->deleteButton->setEnabled(false);
+    m_ui->usernameEdit->setEnabled(false);
+    m_ui->emailEdit->setEnabled(false);
 }
 
 void MainWindow::onSocketError(QAbstractSocket::SocketError) {
@@ -189,8 +204,10 @@ void MainWindow::handleResponse(const QJsonObject& resp) {
         } else if (resp.contains(QStringLiteral(
                        "message"))) {  // если есть message то ответ на add_user см. шаблон JSON
             setStatus(resp.value(QStringLiteral("message")).toString());
-            m_ui->usernameEdit->clear();
-            m_ui->emailEdit->clear();
+            if (resp.contains(QStringLiteral("id"))) {
+                m_ui->usernameEdit->clear();
+                m_ui->emailEdit->clear();
+            }
             refreshUsers();
         }
     } else {
