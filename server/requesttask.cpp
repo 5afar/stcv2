@@ -52,7 +52,10 @@ void RequestTask::run() {
                 reply = successReply(QStringLiteral("User added successfully"));
                 reply[QStringLiteral("id")] = newId;
             } else {
-                reply = errorReply(err);
+                if (err.contains(QStringLiteral("UNIQUE"), Qt::CaseInsensitive))
+                    reply = errorReply(QStringLiteral("Username or email already exists"));
+                else
+                    reply = errorReply(err);
             }
         }
     } else if (action == QStringLiteral("get_users")) {
